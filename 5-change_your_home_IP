@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Reconfigure /etc/hosts: localhost -> 127.0.0.2, facebook.com -> 8.8.8.8
+set -euo pipefail
+sudo sed -i -E 's/^127\.0\.0\.1\s+localhost/127.0.0.2\tlocalhost/' /etc/hosts
+if ! grep -qE '^8\.8\.8\.8\s+facebook\.com(\s|$)' /etc/hosts; then
+  echo -e "8.8.8.8\tfacebook.com" | sudo tee -a /etc/hosts >/dev/null
+fi

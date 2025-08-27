@@ -1,17 +1,14 @@
 #!/usr/bin/env bash
 set -e
 
-# Construit un nouveau /etc/hosts en tête avec les entrées demandées,
-# puis le contenu actuel (sans dupliquer ces deux lignes).
-tmp="$(mktemp)"
+# Sauvegarde
+sudo cp /etc/hosts /etc/hosts.bak || true
+
+# Construit le nouveau contenu et l'écrit EN PLACE (pas de mv, pas de sed -i)
 {
   echo "127.0.0.2 localhost"
   echo "8.8.8.8 facebook.com"
-  # Ajoute les anciennes lignes en excluant celles qu'on vient de définir
-  grep -vE '^\s*127\.0\.0\.(1|2)\s+localhost(\s|$)' /etc/hosts \
+  # Conserve le reste en évitant les doublons de ces deux lignes
+  grep -vE '^\s*127\.0\.0\.(1|2)\s+localhost(\s|$)' /etc/hosts.bak \
   | grep -vE '^\s*8\.8\.8\.8\s+facebook\.com(\s|$)'
-} > "$tmp"
-
-# Sauvegarde et remplacement atomique
-sudo cp /etc/hosts /etc/hosts.bak || true
-sudo mv "$tmp" /etc/hosts
+} | sudo tee /etc/hosts >/dev/null
